@@ -1,16 +1,82 @@
-# React + Vite
+# STRYDE Footwear – Backend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Arquitectura de microservicios con **FastAPI + MySQL**.
 
-Currently, two official plugins are available:
+## Estructura
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+backend/
+├── auth-service/     → Puerto 8000  (login, JWT)
+├── catalog-service/  → Puerto 8001  (categorías, productos)
+├── cart-service/     → Puerto 8002  (carrito)
+└── orders-service/   → Puerto 8003  (pedidos)
+```
 
-## React Compiler
+## Requisitos previos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Python 3.11+
+- MySQL 8.0+ con la base de datos `stryde_db` creada
 
-## Expanding the ESLint configuration
+## Instalación rápida
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# 1. Importar la base de datos
+mysql -u root -p < database/stryde_db.sql
+
+# 2. Configurar variables de entorno en cada servicio
+#    Copiar .env.example a .env y poner tu contraseña MySQL
+
+# 3. Instalar dependencias (repetir para cada servicio)
+cd backend/auth-service
+pip install -r requirements.txt
+
+cd ../catalog-service
+pip install -r requirements.txt
+
+cd ../cart-service
+pip install -r requirements.txt
+
+cd ../orders-service
+pip install -r requirements.txt
+
+# 4. Generar hash de contraseña del admin
+cd backend/auth-service
+python ../../database/seed.py
+```
+
+## Iniciar los servicios
+
+Abrir **4 terminales**, una por servicio:
+
+```bash
+# Terminal 1 – Auth
+cd backend/auth-service && python -m uvicorn main:app --port 8000 --reload
+
+# Terminal 2 – Catalog
+cd backend/catalog-service && python -m uvicorn main:app --port 8001 --reload
+
+# Terminal 3 – Cart
+cd backend/cart-service && python -m uvicorn main:app --port 8002 --reload
+
+# Terminal 4 – Orders
+cd backend/orders-service && python -m uvicorn main:app --port 8003 --reload
+
+# PRUEBAS UNITARIAS
+
+
+```
+
+## Documentación automática (Swagger)
+
+| Servicio | URL                        |
+| -------- | -------------------------- |
+| Auth     | http://localhost:8000/docs |
+| Catalog  | http://localhost:8001/docs |
+| Cart     | http://localhost:8002/docs |
+| Orders   | http://localhost:8003/docs |
+
+## Ejecutar pruebas
+
+```bash
+python -m pytest backend/auth-service/tests/ backend/catalog-service/tests/ backend/cart-service/tests/ backend/orders-service/tests/ -v
+```
